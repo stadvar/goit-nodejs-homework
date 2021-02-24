@@ -1,7 +1,12 @@
-const app = require('../app')
+const app = require("../app");
+const db = require("../db");
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running. Use our API on port: ${PORT}`)
-})
+db.then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server was running on port: ${PORT}`);
+  });
+}).catch((err) => {
+  console.log(`Server wasn't running. ${err.message}`);
+});
