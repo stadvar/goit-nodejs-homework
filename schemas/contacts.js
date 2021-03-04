@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
-
+const { Schema, SchemaTypes, model } = mongoose;
+const mongoosePaginate = require("mongoose-paginate-v2");
 // установка схемы
 const contactsScheme = new Schema(
   {
@@ -11,11 +11,14 @@ const contactsScheme = new Schema(
       unique: true,
     },
     phone: { type: String, required: [true, "Phone is required"] },
-    subscription: { type: String, default: "free" },
-    password: { type: String, required: [true, "Password is required"] },
-    token: { type: String, default: "" },
+    owner: {
+      type: SchemaTypes.ObjectId,
+      ref: "user",
+    },
   },
   { versionKey: false }
 );
+contactsScheme.plugin(mongoosePaginate);
 const Contacts = model("contact", contactsScheme);
+
 module.exports = Contacts;
