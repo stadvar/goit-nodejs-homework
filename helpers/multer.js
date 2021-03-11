@@ -1,17 +1,14 @@
 const path = require("path");
-// const fs = require("fs/promises");
 require("dotenv").config();
 const multer = require("multer");
 
 const UPLOAD_DIR = path.join(process.cwd(), process.env.UPLOAD_DIR);
-// const IMG_DIR = path.join(process.cwd(), "public", "images");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
-    // cb(null, file.fieldname + "-" + Date.now());
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
