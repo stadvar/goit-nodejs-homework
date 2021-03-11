@@ -25,6 +25,7 @@ const reg = async (req, res, next) => {
         email: result.email,
         subscription: result.subscription,
         name: result.name,
+        avatarURL: result.avatarURL,
       },
     });
   } catch (e) {

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 const bcrypt = require("bcryptjs");
+const gravatar = require("gravatar");
 const SALT_FACTOR = 6;
 const usersScheme = new Schema(
   {
@@ -14,6 +15,12 @@ const usersScheme = new Schema(
       unique: true,
     },
     password: { type: String, required: [true, "Password is required"] },
+    avatarURL: {
+      type: String,
+      default: function () {
+        return gravatar.url(this.email, { s: "250" }, true);
+      },
+    },
     subscription: {
       type: String,
       enum: ["free", "pro", "premium"],
