@@ -121,7 +121,7 @@ const updateAvatars = async (req, res, next) => {
       // create URL to avatar file
       const newAvatarURL = `/images/${req.file.filename}`;
       // get old URL of avatar from DB
-      const { avatarURL: oldAvatarURL } = await Users.findById(req.user.id);
+      const { avatarURL: oldAvatarURL } = await Users.findById(req.user._id);
       // parse filename from URL
       const filename = path.parse(oldAvatarURL).base;
       try {

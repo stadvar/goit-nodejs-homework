@@ -21,6 +21,10 @@ app.use("/users", userRouter);
 app.use("/auth", authUserRouter);
 app.use("/api/contacts", contactsRouter);
 
+// process.on("unhandledRejection", (reason, promise) => {
+//   console.log("Unhandled Rejection at:", promise, "reason:", reason);
+// });
+
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
 });

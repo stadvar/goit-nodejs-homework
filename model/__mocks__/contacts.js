@@ -8,11 +8,28 @@ const getById = jest.fn((id, userId) => {
   return contact;
 });
 
-const create = jest.fn((body) => {});
+const create = jest.fn((body) => {
+  const newContact = { ...body, _id: "604a27ea543024073c307a66" };
+  tasks.push(newContact);
+  return newContact;
+});
 
-const remove = jest.fn((id, userId) => {});
+const remove = jest.fn((id, userId) => {
+  const index = tasks.findIndex((el) => String(el._id) === String(id));
+  if (index === -1) {
+    return null;
+  }
+  const [contact] = tasks.splice(index, 1);
+  return contact;
+});
 
-const update = jest.fn((id, body, userId) => {});
+const update = jest.fn((id, body, userId) => {
+  let [contact] = tasks.filter((el) => String(el._id) === String(id));
+  if (contact) {
+    contact = { ...contact, ...body };
+  }
+  return contact;
+});
 
 module.exports = {
   getAll,

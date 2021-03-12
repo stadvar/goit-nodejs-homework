@@ -26,11 +26,6 @@ const newContact = {
   name: "New",
   email: "new@mail.com",
   phone: "000-123-456",
-  owner: {
-    name: "Volodka",
-    subscription: "free",
-    email: "volodka@mail.com",
-  },
 };
 const User = {
   _id: "603f5171ecbe9d0b54fd726a",
@@ -40,7 +35,7 @@ const User = {
   email: "volodka@mail.com",
   password: "$2a$06$KK7.RQM.62Q8HSXO8J5dbeCO8kk/E65UM92ukoO0gbzNwEoYnUAL.",
   subscription: "free",
-  avatarURL: "/images/1615481089393-img.jpg",
+  avatarURL: "/images/1615549581038-test-avatar.jpg",
 };
 const users = [];
 users[0] = User;
