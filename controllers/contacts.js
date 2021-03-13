@@ -1,30 +1,14 @@
-const Contacts = require("../schemas/contacts");
+const Contacts = require("../model/contacts");
 
 const getAll = async (req, res, next) => {
-  const { limit = 5, page = 1 } = req.query;
   try {
     const userId = req.user.id;
-    const {
-      docs: tasks,
-      totalDocs: total,
-      totalPages,
-    } = await Contacts.paginate(
-      { owner: userId },
-      {
-        limit,
-        page,
-        populate: { path: "owner", select: "name email subscription -_id" },
-      }
-    );
-    res.json({
+    const contacts = await Contacts.getAll(userId, req.query);
+    return res.json({
       status: "success",
       code: 200,
       data: {
-        tasks,
-        total,
-        limit: Number(limit),
-        page: Number(page),
-        totalPages,
+        ...contacts,
       },
     });
   } catch (e) {
@@ -33,21 +17,24 @@ const getAll = async (req, res, next) => {
 };
 
 const getById = async (req, res, next) => {
-  const userId = req.user.id;
-  const { contactId } = req.params;
   try {
-    const result = await Contacts.findOne({
-      _id: contactId,
-      owner: userId,
-    }).populate({
-      path: "owner",
-      select: "name email subscription -_id",
-    });
-    res.json({
-      status: "success",
-      code: 200,
-      data: { task: result },
-    });
+    const userId = req.user.id;
+    const contact = await Contacts.getById(req.params.contactId, userId);
+    if (contact) {
+      return res.json({
+        status: "success",
+        code: 200,
+        data: {
+          contact,
+        },
+      });
+    } else {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        data: "Not Found",
+      });
+    }
   } catch (e) {
     next(e);
   }
@@ -56,14 +43,13 @@ const getById = async (req, res, next) => {
 const createOne = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const result = await Contacts.create({
-      ...req.body,
-      owner: userId,
-    });
-    res.status(201).json({
+    const contact = await Contacts.create({ ...req.body, owner: userId });
+    return res.status(201).json({
       status: "success",
       code: 201,
-      tasks: { task: result },
+      data: {
+        contact,
+      },
     });
   } catch (e) {
     next(e);
@@ -71,38 +57,52 @@ const createOne = async (req, res, next) => {
 };
 
 const removeById = async (req, res, next) => {
-  const userId = req.user.id;
-  const { contactId } = req.params;
-
   try {
-    const result = await Contacts.findOneAndDelete({
-      _id: contactId,
-      owner: userId,
-    });
-    res.json({
-      status: "success",
-      code: 200,
-      data: { task: result },
-    });
+    const userId = req.user.id;
+    const contact = await Contacts.remove(req.params.contactId, userId);
+    if (contact) {
+      return res.json({
+        status: "success",
+        code: 200,
+        data: {
+          contact,
+        },
+      });
+    } else {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        data: "Not Found",
+      });
+    }
   } catch (e) {
     next(e);
   }
 };
 
 const updateById = async (req, res, next) => {
-  const userId = req.user.id;
-  const { contactId } = req.params;
   try {
-    const result = await Contacts.findOneAndUpdate(
-      { _id: contactId, owner: userId },
-      { ...req.body },
-      { new: true }
+    const userId = req.user.id;
+    const contact = await Contacts.update(
+      req.params.contactId,
+      req.body,
+      userId
     );
-    res.json({
-      status: "success",
-      code: 200,
-      data: { task: result },
-    });
+    if (contact) {
+      return res.json({
+        status: "success",
+        code: 200,
+        data: {
+          contact,
+        },
+      });
+    } else {
+      return res.status(404).json({
+        status: "error",
+        code: 404,
+        data: "Not Found",
+      });
+    }
   } catch (e) {
     next(e);
   }
