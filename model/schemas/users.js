@@ -26,6 +26,11 @@ const usersScheme = new Schema(
       enum: ["free", "pro", "premium"],
       default: "free",
     },
+    verify: { type: Boolean, default: false },
+    verifyToken: {
+      type: String,
+      require: [true, "verifyToken is required "],
+    },
     token: { type: String, default: null },
   },
   { versionKey: false }

@@ -5,6 +5,7 @@ const validate = require("./validation");
 const usersControllers = require("../../../controllers/users");
 
 router
+  .get("/verify/:verificationToken", usersControllers.verify)
   .post("/register", validate.createUser, usersControllers.reg)
   .post("/login", validate.loginUser, usersControllers.login)
   .post("/logout", guard, usersControllers.logout);

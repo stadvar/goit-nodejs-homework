@@ -3,24 +3,35 @@ const jimp = require("jimp");
 const jwt = require("jsonwebtoken");
 const fs = require("fs/promises");
 const path = require("path");
+const { nanoid } = require("nanoid");
 const IMG_DIR = path.join(process.cwd(), "public", "images");
+const EmailService = require("../service/email");
 
 require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const reg = async (req, res, next) => {
-  const { email } = req.body;
-  const user = await Users.findByEmail(email);
-  if (user) {
-    return res.status(409).json({
-      status: "error",
-      code: 409,
-      data: "Conflict",
-      message: "Email in use",
-    });
-  }
+  const { email, name } = req.body;
   try {
-    const newUser = await Users.create(req.body);
+    const user = await Users.findByEmail(email);
+    if (user) {
+      return res.status(409).json({
+        status: "error",
+        code: 409,
+        data: "Conflict",
+        message: "Email in use",
+      });
+    }
+
+    const verifyToken = nanoid();
+    const emailService = new EmailService();
+    await emailService.sendEmail(verifyToken, email, name);
+
+    const newUser = await Users.create({
+      ...req.body,
+      verify: false,
+      verifyToken,
+    });
     return res.status(201).json({
       status: "success",
       code: 201,
@@ -40,7 +51,7 @@ const reg = async (req, res, next) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await Users.findByEmail(email);
-  if (!user || !(await user.validPassword(password))) {
+  if (!user || !(await user.validPassword(password)) || !user.verify) {
     return res.status(401).json({
       status: "error",
       code: 401,
@@ -68,6 +79,28 @@ const logout = async (req, res, next) => {
   return res.status(204).json({});
 };
 //---
+const verify = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  try {
+    const user = await Users.findByVerifyToken(verificationToken);
+    if (user) {
+      await Users.updateVerifyToken(user.id, true, null);
+      return res.status(200).json({
+        status: "success",
+        code: 200,
+        message: "Verification is successful",
+      });
+    }
+    return res.status(400).json({
+      status: "error",
+      code: 400,
+      data: "Bad request",
+      message: "Link is not valid",
+    });
+  } catch (e) {
+    next(e);
+  }
+};
 
 const getCurrentUser = async (req, res, next) => {
   try {
@@ -147,6 +180,7 @@ module.exports = {
   reg,
   login,
   logout,
+  verify,
   getCurrentUser,
   updateCurrentUser,
   updateAvatars,
